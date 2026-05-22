@@ -58,10 +58,5 @@ const EmployeeSchema = new mongoose.Schema({
 // Compound indexes
 EmployeeSchema.index({ id: 1, 'profile.contact.address.location.state': 1 });
 EmployeeSchema.index({ id: 1, 'profile.contact.address.location.country': 1 });
-EmployeeSchema.index({ 'profile.contact.address.location.geo.timezone.name': 1 });
-EmployeeSchema.index({ 'profile.projects.projectId': 1 });
-EmployeeSchema.index({ 'profile.projects.tasks.taskId': 1 });
-EmployeeSchema.index({ 'profile.projects.tasks.assignedTo.skills.primary': 1 });
-EmployeeSchema.index({ 'profile.projects.tasks.assignedTo.skills.experience.years': 1 });
 
 module.exports = mongoose.model('Employee', EmployeeSchema);

@@ -14,7 +14,8 @@ const seedDatabase = async () => {
     // Read the dataset
     const dataPath = path.join(__dirname, '..', 'Employees_Dataset.json');
     const rawData = fs.readFileSync(dataPath, 'utf-8');
-    const employees = JSON.parse(rawData);
+    const parsed = JSON.parse(rawData);
+    const employees = Array.isArray(parsed) ? parsed : parsed.employees;
 
     // Clear existing data
     await Employee.deleteMany({});
