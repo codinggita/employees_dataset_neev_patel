@@ -34,7 +34,6 @@
 - [Aggregation Pipeline Examples](#aggregation-pipeline-examples)
 - [Middleware Architecture](#middleware-architecture)
 - [Error Handling](#error-handling)
-- [Postman Collection](#postman-collection)
 - [Author](#author)
 
 ---
@@ -756,22 +755,6 @@ exports.getEmployee = asyncHandler(async (req, res) => {
   res.json({ success: true, data: employee });
 });
 ```
-
----
-
-## Postman Collection
-
-The complete Postman collection covering all 200+ routes is available in the repository:
-
-```
-/postman/Employee_Management_API.postman_collection.json
-```
-
-**Import instructions:**
-1. Open Postman
-2. Click **Import**
-3. Select the `.json` file from the `/postman` folder
-4. All routes are pre-organized by category with sample request bodies
 
 ---
 
