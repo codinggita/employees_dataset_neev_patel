@@ -44,6 +44,40 @@ const bulkDelete = (ids) => {
   return Employee.deleteMany({ id: { $in: ids } });
 };
 
+// Pagination helper
+const paginate = async (query, { page = 1, limit = 10 } = {}) => {
+  page = parseInt(page);
+  limit = parseInt(limit);
+  const skip = (page - 1) * limit;
+  const total = await Employee.countDocuments(query);
+  const data = await Employee.find(query).skip(skip).limit(limit);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+};
+
+const findByName = (name, pagination) => {
+  return paginate({ name: { $regex: name, $options: 'i' } }, pagination);
+};
+
+const findByState = (state, pagination) => {
+  return paginate({ 'profile.contact.address.location.state': state }, pagination);
+};
+
+const findByCountry = (country, pagination) => {
+  return paginate({ 'profile.contact.address.location.country': country }, pagination);
+};
+
+const findByCity = (city, pagination) => {
+  return paginate({ 'profile.contact.address.city': city }, pagination);
+};
+
+const findByTimezone = (timezone, pagination) => {
+  return paginate({ 'profile.contact.address.location.geo.timezone.name': timezone }, pagination);
+};
+
+const findByPrimarySkill = (skill, pagination) => {
+  return paginate({ 'profile.projects.tasks.assignedTo.skills.primary': skill }, pagination);
+};
+
 module.exports = {
   getAllEmployees,
   getEmployeeById,
@@ -55,4 +89,10 @@ module.exports = {
   replaceEmployeeById,
   bulkUpdate,
   bulkDelete,
+  findByName,
+  findByState,
+  findByCountry,
+  findByCity,
+  findByTimezone,
+  findByPrimarySkill,
 };
