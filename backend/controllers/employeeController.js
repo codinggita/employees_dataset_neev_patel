@@ -94,6 +94,66 @@ const bulkDeleteEmployees = asyncHandler(async (req, res) => {
   res.json({ success: true, deletedCount: result.deletedCount });
 });
 
+// GET /employees/name/:name — Find employees by name
+const getByName = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.findByName(req.params.name, { page, limit });
+  if (!result.data.length) {
+    throw new AppError('Employee not found', 404);
+  }
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/state/:state — Find employees by state
+const getByState = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.findByState(req.params.state, { page, limit });
+  if (!result.data.length) {
+    throw new AppError('Employee not found', 404);
+  }
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/country/:country — Find employees by country
+const getByCountry = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.findByCountry(req.params.country, { page, limit });
+  if (!result.data.length) {
+    throw new AppError('Employee not found', 404);
+  }
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/city/:city — Find employees by city
+const getByCity = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.findByCity(req.params.city, { page, limit });
+  if (!result.data.length) {
+    throw new AppError('Employee not found', 404);
+  }
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/timezone/:timezone — Find employees by timezone
+const getByTimezone = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.findByTimezone(req.params.timezone, { page, limit });
+  if (!result.data.length) {
+    throw new AppError('Employee not found', 404);
+  }
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/primary-skill/:skill — Find employees by primary skill
+const getByPrimarySkill = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.findByPrimarySkill(req.params.skill, { page, limit });
+  if (!result.data.length) {
+    throw new AppError('Employee not found', 404);
+  }
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
 module.exports = {
   getAllEmployees,
   getEmployeeById,
@@ -105,4 +165,10 @@ module.exports = {
   updateEmployee,
   bulkUpdateEmployees,
   bulkDeleteEmployees,
+  getByName,
+  getByState,
+  getByCountry,
+  getByCity,
+  getByTimezone,
+  getByPrimarySkill,
 };
