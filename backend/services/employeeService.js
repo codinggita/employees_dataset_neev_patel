@@ -78,6 +78,40 @@ const findByPrimarySkill = (skill, pagination) => {
   return paginate({ 'profile.projects.tasks.assignedTo.skills.primary': skill }, pagination);
 };
 
+const findBySecondarySkill = (skill, pagination) => {
+  return paginate({ 'profile.projects.tasks.assignedTo.skills.secondary': skill }, pagination);
+};
+
+const findByDomain = (domain, pagination) => {
+  return paginate({ 'profile.projects.tasks.assignedTo.skills.experience.domains': domain }, pagination);
+};
+
+const findByExperience = (years, pagination) => {
+  const parsed = Number(years);
+  if (isNaN(parsed)) {
+    const AppError = require('../middlewares/AppError');
+    throw new AppError('Experience must be a valid number', 400);
+  }
+  return paginate({ 'profile.projects.tasks.assignedTo.skills.experience.years': parsed }, pagination);
+};
+
+const findByProjectId = (projectId, pagination) => {
+  return paginate({ 'profile.projects.projectId': projectId }, pagination);
+};
+
+const findByTaskId = (taskId, pagination) => {
+  return paginate({ 'profile.projects.tasks.taskId': taskId }, pagination);
+};
+
+const findByCertification = (certification, pagination) => {
+  return paginate({
+    'profile.projects.tasks.assignedTo.skills.experience.certifications.current': {
+      $regex: certification,
+      $options: 'i'
+    }
+  }, pagination);
+};
+
 module.exports = {
   getAllEmployees,
   getEmployeeById,
@@ -95,4 +129,10 @@ module.exports = {
   findByCity,
   findByTimezone,
   findByPrimarySkill,
+  findBySecondarySkill,
+  findByDomain,
+  findByExperience,
+  findByProjectId,
+  findByTaskId,
+  findByCertification,
 };
