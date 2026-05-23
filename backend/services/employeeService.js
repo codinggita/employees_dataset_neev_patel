@@ -163,6 +163,153 @@ const queryEmployees = async (filters, sort, page = 1, limit = 10) => {
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 };
 
+const getVerifiedEmployees = (pagination) => {
+  return paginate({ 'profile.projects.tasks.assignedTo.skills.experience.certifications.meta.verified': true }, pagination);
+};
+
+const getAllProjects = async (pagination) => {
+  const { page = 1, limit = 10 } = pagination || {};
+  const skip = (page - 1) * limit;
+  const total = await Employee.countDocuments({});
+  const data = await Employee.find({}).select('profile.projects -_id').skip(skip).limit(limit);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+};
+
+const getAllTasks = async (pagination) => {
+  const { page = 1, limit = 10 } = pagination || {};
+  const skip = (page - 1) * limit;
+  const total = await Employee.countDocuments({});
+  const data = await Employee.find({}).select('profile.projects.tasks -_id').skip(skip).limit(limit);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+};
+
+const getTopExperience = async (limit = 10) => {
+  return Employee.find().sort({ 'profile.projects.tasks.assignedTo.skills.experience.years': -1 }).limit(limit);
+};
+
+const getTopSkills = async () => {
+  return Employee.aggregate([
+    { $unwind: '$profile.projects' },
+    { $unwind: '$profile.projects.tasks' },
+    {
+      $group: {
+        _id: '$profile.projects.tasks.assignedTo.skills.primary',
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { count: -1 } },
+    { $limit: 10 }
+  ]);
+};
+
+const getCloudEngineers = (pagination) => {
+  return paginate({ 'profile.projects.tasks.assignedTo.skills.experience.domains': 'Cloud' }, pagination);
+};
+
+const getDevOpsEngineers = (pagination) => {
+  return paginate({ 'profile.projects.tasks.assignedTo.skills.experience.domains': 'DevOps' }, pagination);
+};
+
+const getAIEngineers = (pagination) => {
+  return paginate({ 'profile.projects.tasks.assignedTo.skills.experience.domains': 'AI' }, pagination);
+};
+
+const getFullStackDevelopers = (pagination) => {
+  return paginate({
+    'profile.projects.tasks.assignedTo.skills.secondary': { $all: ['React', 'Node.js'] }
+  }, pagination);
+};
+
+const getRecentCertifications = async (pagination) => {
+  const { page = 1, limit = 20 } = pagination || {};
+  const skip = (page - 1) * limit;
+  const total = await Employee.countDocuments({});
+  const data = await Employee.find({}).sort({ 'profile.projects.tasks.assignedTo.skills.experience.certifications.meta.lastUpdated': -1 }).skip(skip).limit(limit);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+};
+
+const searchEmployees = async (q, pagination) => {
+  if (!q || q.trim() === '') {
+    const AppError = require('../middlewares/AppError');
+    throw new AppError('Search query cannot be empty', 400);
+  }
+  const regex = { $regex: q, $options: 'i' };
+  const query = {
+    $or: [
+      { name: regex },
+      { 'profile.projects.tasks.assignedTo.skills.primary': regex },
+      { 'profile.projects.tasks.assignedTo.skills.secondary': regex },
+      { 'profile.projects.tasks.assignedTo.skills.experience.domains': regex },
+      { 'profile.projects.tasks.assignedTo.skills.experience.certifications.current': regex },
+      { 'profile.contact.address.location.country': regex },
+      { 'profile.contact.address.city': regex },
+      { 'profile.projects.name': regex },
+      { 'profile.projects.tasks.description': regex }
+    ]
+  };
+  return paginate(query, pagination);
+};
+
+const getEmployeePerformance = async (id) => {
+  const employee = await Employee.findOne({ id });
+  if (!employee) return null;
+
+  let totalProjects = employee.profile?.projects?.length || 0;
+  let totalTasks = 0;
+  let primarySkill = null;
+  let domains = [];
+  let experienceYears = 0;
+
+  if (employee.profile?.projects?.length > 0) {
+    employee.profile.projects.forEach(p => {
+      if (p.tasks) totalTasks += p.tasks.length;
+      if (!primarySkill && p.tasks?.[0]?.assignedTo?.skills?.primary) {
+        primarySkill = p.tasks[0].assignedTo.skills.primary;
+        domains = p.tasks[0].assignedTo.skills.experience?.domains || [];
+        experienceYears = p.tasks[0].assignedTo.skills.experience?.years || 0;
+      }
+    });
+  }
+
+  return {
+    name: employee.name,
+    totalProjects,
+    totalTasks,
+    primarySkill,
+    domains,
+    experienceYears
+  };
+};
+
+const getEmployeeStats = async (id) => {
+  const employee = await Employee.findOne({ id });
+  if (!employee) return null;
+
+  let currentCertCount = 0;
+  let expiredCertCount = 0;
+  let verified = false;
+  let lastUpdated = null;
+
+  const tasks = employee.profile?.projects?.[0]?.tasks;
+  if (tasks && tasks.length > 0) {
+    const certs = tasks[0].assignedTo?.skills?.experience?.certifications;
+    if (certs) {
+      currentCertCount = certs.current?.length || 0;
+      expiredCertCount = certs.expired?.length || 0;
+      verified = certs.meta?.verified || false;
+      lastUpdated = certs.meta?.lastUpdated || null;
+    }
+  }
+
+  return {
+    name: employee.name,
+    currentCertCount,
+    expiredCertCount,
+    verified,
+    lastUpdated
+  };
+};
+
 module.exports = {
   getAllEmployees,
   getEmployeeById,
@@ -187,4 +334,17 @@ module.exports = {
   findByTaskId,
   findByCertification,
   queryEmployees,
+  getVerifiedEmployees,
+  getAllProjects,
+  getAllTasks,
+  getTopExperience,
+  getTopSkills,
+  getCloudEngineers,
+  getDevOpsEngineers,
+  getAIEngineers,
+  getFullStackDevelopers,
+  getRecentCertifications,
+  searchEmployees,
+  getEmployeePerformance,
+  getEmployeeStats,
 };
