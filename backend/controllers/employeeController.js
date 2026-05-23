@@ -5,10 +5,11 @@ const asyncHandler = require('../middlewares/asyncHandler');
 const AppError = require('../middlewares/AppError');
 const employeeService = require('../services/employeeService');
 
-// GET /employees — Get all employees
+// GET /employees — Get all employees (now with query params, pagination, and sorting)
 const getAllEmployees = asyncHandler(async (req, res) => {
-  const employees = await employeeService.getAllEmployees();
-  res.json({ success: true, count: employees.length, data: employees });
+  const { sort, page, limit, ...filters } = req.query;
+  const result = await employeeService.queryEmployees(filters, sort, page, limit);
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 });
 
 // GET /employees/:id — Get employee by ID
@@ -218,6 +219,37 @@ const getByCertification = asyncHandler(async (req, res) => {
   res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 });
 
+// Sort controllers
+const sortByExperienceDesc = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.queryEmployees({}, { 'profile.projects.tasks.assignedTo.skills.experience.years': -1 }, page, limit);
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+const sortByNameAsc = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.queryEmployees({}, { name: 1 }, page, limit);
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+const sortByProjectAsc = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.queryEmployees({}, { 'profile.projects.projectId': 1 }, page, limit);
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+const sortByDomainAsc = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.queryEmployees({}, { 'profile.projects.tasks.assignedTo.skills.experience.domains': 1 }, page, limit);
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+const sortByCertificationDesc = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.queryEmployees({}, { 'profile.projects.tasks.assignedTo.skills.experience.certifications.current': -1 }, page, limit);
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
 module.exports = {
   getAllEmployees,
   getEmployeeById,
@@ -241,4 +273,9 @@ module.exports = {
   getByProjectId,
   getByTaskId,
   getByCertification,
+  sortByExperienceDesc,
+  sortByNameAsc,
+  sortByProjectAsc,
+  sortByDomainAsc,
+  sortByCertificationDesc,
 };
