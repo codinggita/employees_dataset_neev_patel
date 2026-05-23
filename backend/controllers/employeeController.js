@@ -62,6 +62,38 @@ const bulkCreateEmployees = asyncHandler(async (req, res) => {
   res.status(201).json({ success: true, count: result.length, data: result });
 });
 
+// PUT /employees/:id — Replace employee by ID
+const replaceEmployee = asyncHandler(async (req, res) => {
+  const employee = await employeeService.replaceEmployeeById(req.params.id, req.body);
+  if (!employee) {
+    throw new AppError('Employee not found', 404);
+  }
+  res.json({ success: true, data: employee });
+});
+
+// PATCH /employees/:id — Update employee by ID
+const updateEmployee = asyncHandler(async (req, res) => {
+  const employee = await employeeService.updateEmployeeById(req.params.id, req.body);
+  if (!employee) {
+    throw new AppError('Employee not found', 404);
+  }
+  res.json({ success: true, data: employee });
+});
+
+// PATCH /employees/bulk-update — Bulk update employees
+const bulkUpdateEmployees = asyncHandler(async (req, res) => {
+  const { updates } = req.body;
+  const result = await employeeService.bulkUpdate(updates);
+  res.json({ success: true, count: result.length, data: result });
+});
+
+// DELETE /employees/bulk-delete — Bulk delete employees
+const bulkDeleteEmployees = asyncHandler(async (req, res) => {
+  const { ids } = req.body;
+  const result = await employeeService.bulkDelete(ids);
+  res.json({ success: true, deletedCount: result.deletedCount });
+});
+
 module.exports = {
   getAllEmployees,
   getEmployeeById,
@@ -69,4 +101,8 @@ module.exports = {
   deleteEmployeeById,
   checkEmployeeExists,
   bulkCreateEmployees,
+  replaceEmployee,
+  updateEmployee,
+  bulkUpdateEmployees,
+  bulkDeleteEmployees,
 };
