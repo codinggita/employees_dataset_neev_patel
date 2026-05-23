@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
 
 // Mount routes
 app.use('/', employeeRoutes);
-app.use('/search', searchRoutes);
+app.use('/', searchRoutes);
 app.use('/employees/filter', filterRoutes);
 app.use('/analytics', analyticsRoutes);
 app.use('/stats', statsRoutes);

@@ -250,6 +250,96 @@ const sortByCertificationDesc = asyncHandler(async (req, res) => {
   res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 });
 
+// GET /employees/verified
+const getVerifiedEmployees = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.getVerifiedEmployees({ page, limit });
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/projects
+const getAllProjects = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.getAllProjects({ page, limit });
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/tasks
+const getAllTasks = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.getAllTasks({ page, limit });
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/top-experience
+const getTopExperience = asyncHandler(async (req, res) => {
+  const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+  const result = await employeeService.getTopExperience(limit);
+  res.json({ success: true, count: result.length, data: result });
+});
+
+// GET /employees/top-skills
+const getTopSkills = asyncHandler(async (req, res) => {
+  const result = await employeeService.getTopSkills();
+  res.json({ success: true, count: result.length, data: result });
+});
+
+// GET /employees/cloud-engineers
+const getCloudEngineers = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.getCloudEngineers({ page, limit });
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/devops-engineers
+const getDevOpsEngineers = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.getDevOpsEngineers({ page, limit });
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/ai-engineers
+const getAIEngineers = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.getAIEngineers({ page, limit });
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/fullstack
+const getFullStackDevelopers = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.getFullStackDevelopers({ page, limit });
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/recent-certifications
+const getRecentCertifications = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.getRecentCertifications({ page, limit });
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /search/employees?q=
+const searchEmployees = asyncHandler(async (req, res) => {
+  const { q, page, limit } = req.query;
+  const result = await employeeService.searchEmployees(q, { page, limit });
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/performance/:id
+const getEmployeePerformance = asyncHandler(async (req, res) => {
+  const result = await employeeService.getEmployeePerformance(req.params.id);
+  if (!result) throw new AppError('Employee not found', 404);
+  res.json({ success: true, data: result });
+});
+
+// GET /employees/stats/:id
+const getEmployeeStats = asyncHandler(async (req, res) => {
+  const result = await employeeService.getEmployeeStats(req.params.id);
+  if (!result) throw new AppError('Employee not found', 404);
+  res.json({ success: true, data: result });
+});
+
 module.exports = {
   getAllEmployees,
   getEmployeeById,
@@ -278,4 +368,17 @@ module.exports = {
   sortByProjectAsc,
   sortByDomainAsc,
   sortByCertificationDesc,
+  getVerifiedEmployees,
+  getAllProjects,
+  getAllTasks,
+  getTopExperience,
+  getTopSkills,
+  getCloudEngineers,
+  getDevOpsEngineers,
+  getAIEngineers,
+  getFullStackDevelopers,
+  getRecentCertifications,
+  searchEmployees,
+  getEmployeePerformance,
+  getEmployeeStats,
 };
