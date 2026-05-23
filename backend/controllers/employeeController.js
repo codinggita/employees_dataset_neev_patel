@@ -154,6 +154,70 @@ const getByPrimarySkill = asyncHandler(async (req, res) => {
   res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 });
 
+// GET /employees/secondary-skill/:skill — Find employees by secondary skill
+const getBySecondarySkill = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.findBySecondarySkill(req.params.skill, { page, limit });
+  if (!result.data.length) {
+    throw new AppError('Employee not found', 404);
+  }
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/domain/:domain — Find employees by domain
+const getByDomain = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.findByDomain(req.params.domain, { page, limit });
+  if (!result.data.length) {
+    throw new AppError('Employee not found', 404);
+  }
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/experience/:years — Find employees by experience years
+const getByExperience = asyncHandler(async (req, res) => {
+  const years = req.params.years;
+  if (isNaN(Number(years))) {
+    throw new AppError('Experience must be a valid number', 400);
+  }
+  const { page, limit } = req.query;
+  const result = await employeeService.findByExperience(years, { page, limit });
+  if (!result.data.length) {
+    throw new AppError('Employee not found', 404);
+  }
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/project/:projectId — Find employees by project ID
+const getByProjectId = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.findByProjectId(req.params.projectId, { page, limit });
+  if (!result.data.length) {
+    throw new AppError('Employee not found', 404);
+  }
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/task/:taskId — Find employees by task ID
+const getByTaskId = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.findByTaskId(req.params.taskId, { page, limit });
+  if (!result.data.length) {
+    throw new AppError('Employee not found', 404);
+  }
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
+// GET /employees/certification/:certification — Find employees by certification
+const getByCertification = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await employeeService.findByCertification(req.params.certification, { page, limit });
+  if (!result.data.length) {
+    throw new AppError('Employee not found', 404);
+  }
+  res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
+});
+
 module.exports = {
   getAllEmployees,
   getEmployeeById,
@@ -171,4 +235,10 @@ module.exports = {
   getByCity,
   getByTimezone,
   getByPrimarySkill,
+  getBySecondarySkill,
+  getByDomain,
+  getByExperience,
+  getByProjectId,
+  getByTaskId,
+  getByCertification,
 };
