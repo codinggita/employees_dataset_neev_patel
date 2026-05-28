@@ -1,6 +1,7 @@
 // Auth Service — Authentication business logic
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Employee = require('../models/Employee');
 const AppError = require('../middlewares/AppError');
 
 /**
@@ -112,4 +113,54 @@ const forgotPassword = async (email) => {
   return { message: 'If this email exists, a reset link has been sent' };
 };
 
-module.exports = { register, login, generateToken, getUserFromToken, changePassword, forgotPassword };
+/**
+ * refreshToken — Issues a fresh JWT for an already-authenticated user
+ */
+const refreshToken = (userId, role) => {
+  return generateToken(userId, role);
+};
+
+/**
+ * getDashboardSummary — Aggregates key stats from the Employee collection
+ * Returns: totalEmployees, topSkill, topDomain
+ */
+const getDashboardSummary = async () => {
+  const totalEmployees = await Employee.countDocuments();
+
+  // Find the most common primary skill
+  const skillAgg = await Employee.aggregate([
+    { $unwind: '$profile.projects' },
+    { $unwind: '$profile.projects.tasks' },
+    {
+      $group: {
+        _id: '$profile.projects.tasks.assignedTo.skills.primary',
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { count: -1 } },
+    { $limit: 1 }
+  ]);
+
+  // Find the most common domain
+  const domainAgg = await Employee.aggregate([
+    { $unwind: '$profile.projects' },
+    { $unwind: '$profile.projects.tasks' },
+    { $unwind: '$profile.projects.tasks.assignedTo.skills.experience.domains' },
+    {
+      $group: {
+        _id: '$profile.projects.tasks.assignedTo.skills.experience.domains',
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { count: -1 } },
+    { $limit: 1 }
+  ]);
+
+  return {
+    totalEmployees,
+    topSkill: skillAgg[0]?._id || null,
+    topDomain: domainAgg[0]?._id || null
+  };
+};
+
+module.exports = { register, login, generateToken, getUserFromToken, changePassword, forgotPassword, refreshToken, getDashboardSummary };
