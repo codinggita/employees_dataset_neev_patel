@@ -77,4 +77,39 @@ const login = async (email, password) => {
   };
 };
 
-module.exports = { register, login, generateToken, getUserFromToken };
+/**
+ * changePassword — Verifies current password then hashes and saves new password
+ * Throws 401 if current password does not match
+ */
+const changePassword = async (userId, currentPassword, newPassword) => {
+  // Fetch user with password field (normally excluded)
+  const user = await User.findById(userId).select('+password');
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
+  // Verify current password
+  const isMatch = await user.comparePassword(currentPassword);
+  if (!isMatch) {
+    throw new AppError('Current password is incorrect', 401);
+  }
+
+  // Assign new password (pre-save hook will hash it)
+  user.password = newPassword;
+  await user.save();
+
+  return { message: 'Password changed successfully' };
+};
+
+/**
+ * forgotPassword — Accepts an email and returns a generic message
+ * Never reveals whether the email exists in the system (security)
+ */
+const forgotPassword = async (email) => {
+  // Intentionally do NOT throw if user is not found
+  await User.findOne({ email: email.toLowerCase() });
+  // Future: generate reset token, send email here
+  return { message: 'If this email exists, a reset link has been sent' };
+};
+
+module.exports = { register, login, generateToken, getUserFromToken, changePassword, forgotPassword };
