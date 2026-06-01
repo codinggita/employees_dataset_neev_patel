@@ -88,6 +88,91 @@ const getLocationAnalysis = async (limit = 10) => {
   ]);
 };
 
+const getExperienceAnalysis = async () => {
+  return Employee.aggregate([
+    ...baseUnwind,
+    {
+      $group: {
+        _id: '$profile.projects.tasks.assignedTo.skills.experience.years',
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { _id: 1 } },
+    {
+      $project: {
+        _id: 0,
+        value: '$_id',
+        count: 1
+      }
+    }
+  ]);
+};
+
+const getVerificationAnalysis = async () => {
+  return Employee.aggregate([
+    ...baseUnwind,
+    ...groupByField('$profile.projects.tasks.assignedTo.skills.experience.certifications.meta.verified', false, null)
+  ]);
+};
+
+const getProjectAnalysis = async (limit = 10) => {
+  return Employee.aggregate([
+    { $unwind: '$profile.projects' },
+    {
+      $group: {
+        _id: '$profile.projects.projectId',
+        name: { $first: '$profile.projects.name' },
+        taskCount: { $sum: { $size: { $ifNull: ['$profile.projects.tasks', []] } } },
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { taskCount: -1 } },
+    {
+      $project: {
+        _id: 0,
+        projectId: '$_id',
+        name: 1,
+        taskCount: 1,
+        employeeCount: '$count'
+      }
+    },
+    ...(limit ? [{ $limit: limit }] : [])
+  ]);
+};
+
+const getTaskAnalysis = async (limit = 10) => {
+  return Employee.aggregate([
+    ...baseUnwind,
+    ...groupByField('$profile.projects.tasks.taskId', false, limit)
+  ]);
+};
+
+const getSkillDistribution = async () => {
+  return Employee.aggregate([
+    ...baseUnwind,
+    ...groupByField('$profile.projects.tasks.assignedTo.skills.primary', false, null)
+  ]);
+};
+
+const getDomainDistribution = async () => {
+  return Employee.aggregate([
+    ...baseUnwind,
+    ...groupByField('$profile.projects.tasks.assignedTo.skills.experience.domains', true, null)
+  ]);
+};
+
+const getCountryAnalysis = async () => {
+  return Employee.aggregate([
+    ...groupByField('$profile.contact.address.location.country', false, null)
+  ]);
+};
+
+const getStateAnalysis = async (limit = 10) => {
+  return Employee.aggregate([
+    ...groupByField('$profile.contact.address.location.state', false, limit)
+  ]);
+};
+
 module.exports = {
   getTopSkills,
   getTopDomains,
@@ -95,5 +180,13 @@ module.exports = {
   getTopProjects,
   getTopTechnologies,
   getTimezoneAnalysis,
-  getLocationAnalysis
+  getLocationAnalysis,
+  getExperienceAnalysis,
+  getVerificationAnalysis,
+  getProjectAnalysis,
+  getTaskAnalysis,
+  getSkillDistribution,
+  getDomainDistribution,
+  getCountryAnalysis,
+  getStateAnalysis
 };
