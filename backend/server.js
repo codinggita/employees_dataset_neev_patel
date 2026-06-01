@@ -38,7 +38,7 @@ app.get('/', (req, res) => {
 app.use('/', employeeRoutes);
 app.use('/', searchRoutes);
 app.use('/employees/filter', filterRoutes);
-app.use('/analytics', analyticsRoutes);
+app.use('/', analyticsRoutes);
 app.use('/stats', statsRoutes);
 app.use('/auth', authRoutes);
 app.use('/jwt', jwtRoutes);
