@@ -1,6 +1,6 @@
 # 🧑💼 Employee Management System — Backend API
 
-> A production-ready RESTful backend built with **Node.js**, **Express.js**, and **MongoDB (Mongoose)** — covering full CRUD, advanced querying, JWT authentication, aggregation pipelines, and 200+ API endpoints across a deeply nested employee dataset.
+> A production-ready RESTful backend built with **Node.js**, **Express.js**, and **MongoDB (Mongoose)** — covering full CRUD, advanced querying, JWT authentication, aggregation pipelines, and 130+ API endpoints across a deeply nested employee dataset.
 
 ---
 
@@ -40,10 +40,10 @@
 
 ## Project Overview
 
-This is a backend system for managing employee records. It handles a deeply nested JSON dataset of 127+ employees — each with contact info, geo-coordinates, projects, tasks, skills, experience, and certifications — and exposes a complete REST API for querying, filtering, sorting, searching, and analyzing that data.
+This is a backend system for managing employee records. It handles a deeply nested JSON dataset of 4,100+ employees — each with contact info, geo-coordinates, projects, tasks, skills, experience, and certifications — and exposes a complete REST API for querying, filtering, sorting, searching, and analyzing that data.
 
 **Key highlights:**
-- 200+ REST API endpoints organized by purpose
+- 130+ REST API endpoints organized by purpose
 - Deeply nested MongoDB schema mirroring the original dataset structure
 - JWT-based authentication with protected and admin-only routes
 - MongoDB Aggregation Framework for analytics and statistics
@@ -128,7 +128,7 @@ employee-management-backend/
 
 ## Dataset Overview
 
-The dataset (`Employees_Dataset.json`) contains **127+ employee records**, each following this nested structure:
+The dataset (`Employees_Dataset.json`) contains **4,100+ employee records**, each following this nested structure:
 
 ```json
 {
