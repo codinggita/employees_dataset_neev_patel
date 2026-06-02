@@ -10,12 +10,31 @@ router.use(protect);
 
 // ─── POST /protected/employees — create employee ───
 router.post('/employees', asyncHandler(async (req, res) => {
+  const { id, name, profile } = req.body;
+  const email = profile?.contact?.email;
+
+  if (!id || !name || !email) {
+    throw new AppError('ID, name, and email are required', 400);
+  }
+
+  const exists = await employeeService.employeeExists(id);
+  if (exists) {
+    throw new AppError('Employee with this ID already exists', 409);
+  }
+
   const employee = await employeeService.createEmployee(req.body);
   res.status(201).json({ success: true, message: 'Employee created', data: employee });
 }));
 
 // ─── PATCH /protected/employees/:id — update employee ───
 router.patch('/employees/:id', asyncHandler(async (req, res, next) => {
+  if (req.body.name === '') {
+    throw new AppError('Name cannot be empty', 400);
+  }
+  if (req.body.profile?.contact?.email === '') {
+    throw new AppError('Email cannot be empty', 400);
+  }
+
   const employee = await employeeService.updateEmployeeById(req.params.id, req.body);
   if (!employee) {
     return next(new AppError('Employee not found', 404));

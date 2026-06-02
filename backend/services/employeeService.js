@@ -46,12 +46,16 @@ const bulkDelete = (ids) => {
 
 // Pagination helper
 const paginate = async (query, { page = 1, limit = 10 } = {}) => {
-  page = parseInt(page);
-  limit = parseInt(limit);
-  const skip = (page - 1) * limit;
+  const pageNum = parseInt(page);
+  const limitNum = parseInt(limit);
+  if (isNaN(pageNum) || pageNum <= 0 || isNaN(limitNum) || limitNum <= 0) {
+    const AppError = require('../middlewares/AppError');
+    throw new AppError('Page and limit must be greater than zero', 400);
+  }
+  const skip = (pageNum - 1) * limitNum;
   const total = await Employee.countDocuments(query);
-  const data = await Employee.find(query).skip(skip).limit(limit);
-  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+  const data = await Employee.find(query).skip(skip).limit(limitNum);
+  return { data, total, page: pageNum, limit: limitNum, totalPages: Math.ceil(total / limitNum) };
 };
 
 const findByName = (name, pagination) => {

@@ -23,11 +23,11 @@ const getEmployeeById = asyncHandler(async (req, res) => {
 
 // POST /employees — Create a new employee
 const createEmployee = asyncHandler(async (req, res) => {
-  const { name, profile } = req.body;
+  const { id, name, profile } = req.body;
   const email = profile?.contact?.email;
 
-  if (!name || !email) {
-    throw new AppError('Name and email are required', 400);
+  if (!id || !name || !email) {
+    throw new AppError('ID, name, and email are required', 400);
   }
 
   // Check for duplicate id
@@ -59,12 +59,26 @@ const checkEmployeeExists = asyncHandler(async (req, res) => {
 
 // POST /employees/bulk-create — Bulk create employees
 const bulkCreateEmployees = asyncHandler(async (req, res) => {
+  if (!Array.isArray(req.body) || req.body.length === 0) {
+    throw new AppError('Request body must be a non-empty array of employees', 400);
+  }
+  for (const emp of req.body) {
+    const email = emp.profile?.contact?.email;
+    if (!emp.id || !emp.name || !email) {
+      throw new AppError('Each employee must have an id, name, and profile.contact.email', 400);
+    }
+  }
   const result = await employeeService.bulkCreate(req.body);
   res.status(201).json({ success: true, count: result.length, data: result });
 });
 
 // PUT /employees/:id — Replace employee by ID
 const replaceEmployee = asyncHandler(async (req, res) => {
+  const { name, profile } = req.body;
+  const email = profile?.contact?.email;
+  if (!name || !email) {
+    throw new AppError('Name and email are required', 400);
+  }
   const employee = await employeeService.replaceEmployeeById(req.params.id, req.body);
   if (!employee) {
     throw new AppError('Employee not found', 404);
@@ -74,6 +88,12 @@ const replaceEmployee = asyncHandler(async (req, res) => {
 
 // PATCH /employees/:id — Update employee by ID
 const updateEmployee = asyncHandler(async (req, res) => {
+  if (req.body.name === '') {
+    throw new AppError('Name cannot be empty', 400);
+  }
+  if (req.body.profile?.contact?.email === '') {
+    throw new AppError('Email cannot be empty', 400);
+  }
   const employee = await employeeService.updateEmployeeById(req.params.id, req.body);
   if (!employee) {
     throw new AppError('Employee not found', 404);
@@ -84,6 +104,14 @@ const updateEmployee = asyncHandler(async (req, res) => {
 // PATCH /employees/bulk-update — Bulk update employees
 const bulkUpdateEmployees = asyncHandler(async (req, res) => {
   const { updates } = req.body;
+  if (!Array.isArray(updates) || updates.length === 0) {
+    throw new AppError('Updates must be a non-empty array', 400);
+  }
+  for (const item of updates) {
+    if (!item.id || !item.data) {
+      throw new AppError('Each update item must contain an id and data object', 400);
+    }
+  }
   const result = await employeeService.bulkUpdate(updates);
   res.json({ success: true, count: result.length, data: result });
 });
@@ -91,6 +119,9 @@ const bulkUpdateEmployees = asyncHandler(async (req, res) => {
 // DELETE /employees/bulk-delete — Bulk delete employees
 const bulkDeleteEmployees = asyncHandler(async (req, res) => {
   const { ids } = req.body;
+  if (!Array.isArray(ids) || ids.length === 0) {
+    throw new AppError('ids must be a non-empty array', 400);
+  }
   const result = await employeeService.bulkDelete(ids);
   res.json({ success: true, deletedCount: result.deletedCount });
 });
