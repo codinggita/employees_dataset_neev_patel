@@ -76,31 +76,34 @@ employee-management-backend/
 │   └── db.js                  # MongoDB connection setup
 │
 ├── models/
-│   └── Employee.js            # Mongoose schema & model
+│   ├── Employee.js            # Employee schema & model
+│   └── User.js                # User schema & model
 │
 ├── controllers/
 │   ├── employeeController.js  # Request/response handling only
-│   ├── authController.js
-│   ├── analyticsController.js
-│   └── statsController.js
+│   ├── authController.js      # User registration, login, profile management
+│   ├── jwtController.js       # JWT-based stateless endpoints
+│   ├── analyticsController.js # Aggregation-based analytics
+│   └── statsController.js     # Statistical aggregations
 │
 ├── services/
 │   ├── employeeService.js     # Core business logic
-│   ├── authService.js
-│   ├── analyticsService.js
-│   └── statsService.js
+│   ├── authService.js         # Cryptographic and authentication logic
+│   ├── analyticsService.js    # Database aggregation pipelines for analytics
+│   └── statsService.js        # Statistics aggregation logic
 │
 ├── routes/
-│   ├── employeeRoutes.js
-│   ├── searchRoutes.js
-│   ├── filterRoutes.js
-│   ├── analyticsRoutes.js
-│   ├── statsRoutes.js
-│   ├── authRoutes.js
-│   ├── jwtRoutes.js
-│   ├── adminRoutes.js
-│   ├── protectedRoutes.js
-│   └── middlewareRoutes.js
+│   ├── employeeRoutes.js      # Standard CRUD & lookup endpoints
+│   ├── searchRoutes.js        # Search routes
+│   ├── filterRoutes.js        # Experience, domain, skill, and certification filters
+│   ├── analyticsRoutes.js     # Analytics endpoints
+│   ├── statsRoutes.js         # Stats endpoints
+│   ├── authRoutes.js          # Authentication (register/login/logout/profile) endpoints
+│   ├── jwtRoutes.js           # JWT testing endpoints
+│   ├── adminRoutes.js         # Admin-only dashboards
+│   ├── protectedRoutes.js     # Basic authentication routes
+│   ├── middlewareRoutes.js    # Routes to test individual middlewares
+│   └── metaRoutes.js          # HTTP HEAD and OPTIONS metadata routes
 │
 ├── middlewares/
 │   ├── authMiddleware.js      # JWT token verification
@@ -109,7 +112,9 @@ employee-management-backend/
 │   ├── roleCheck.js           # Role-based authorization
 │   ├── validate.js            # Input validation
 │   ├── requestTime.js         # Request timing
-│   └── auditLog.js            # Audit logging
+│   ├── auditLog.js            # Audit logging
+│   ├── AppError.js            # Custom Operational Error helper
+│   └── asyncHandler.js        # Express middleware async wrapper
 │
 ├── .env                       # Environment variables (not committed)
 ├── .env.example               # Environment variable template
