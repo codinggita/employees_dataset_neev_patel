@@ -59,31 +59,31 @@ const findByName = (name, pagination) => {
 };
 
 const findByState = (state, pagination) => {
-  return paginate({ 'profile.contact.address.location.state': state }, pagination);
+  return paginate({ 'profile.contact.address.location.state': { $regex: state, $options: 'i' } }, pagination);
 };
 
 const findByCountry = (country, pagination) => {
-  return paginate({ 'profile.contact.address.location.country': country }, pagination);
+  return paginate({ 'profile.contact.address.location.country': { $regex: country, $options: 'i' } }, pagination);
 };
 
 const findByCity = (city, pagination) => {
-  return paginate({ 'profile.contact.address.city': city }, pagination);
+  return paginate({ 'profile.contact.address.city': { $regex: city, $options: 'i' } }, pagination);
 };
 
 const findByTimezone = (timezone, pagination) => {
-  return paginate({ 'profile.contact.address.location.geo.timezone.name': timezone }, pagination);
+  return paginate({ 'profile.contact.address.location.geo.timezone.name': { $regex: timezone, $options: 'i' } }, pagination);
 };
 
 const findByPrimarySkill = (skill, pagination) => {
-  return paginate({ 'profile.projects.tasks.assignedTo.skills.primary': skill }, pagination);
+  return paginate({ 'profile.projects.tasks.assignedTo.skills.primary': { $regex: skill, $options: 'i' } }, pagination);
 };
 
 const findBySecondarySkill = (skill, pagination) => {
-  return paginate({ 'profile.projects.tasks.assignedTo.skills.secondary': skill }, pagination);
+  return paginate({ 'profile.projects.tasks.assignedTo.skills.secondary': { $regex: skill, $options: 'i' } }, pagination);
 };
 
 const findByDomain = (domain, pagination) => {
-  return paginate({ 'profile.projects.tasks.assignedTo.skills.experience.domains': domain }, pagination);
+  return paginate({ 'profile.projects.tasks.assignedTo.skills.experience.domains': { $regex: domain, $options: 'i' } }, pagination);
 };
 
 const findByExperience = (years, pagination) => {
@@ -124,15 +124,15 @@ const queryEmployees = async (filters, sort, page = 1, limit = 10) => {
   const query = {};
 
   if (filters.country) query['profile.contact.address.location.country'] = { $regex: filters.country, $options: 'i' };
-  if (filters.state) query['profile.contact.address.location.state'] = filters.state;
-  if (filters.city) query['profile.contact.address.city'] = filters.city;
-  if (filters.primarySkill) query['profile.projects.tasks.assignedTo.skills.primary'] = filters.primarySkill;
-  if (filters.secondarySkill) query['profile.projects.tasks.assignedTo.skills.secondary'] = filters.secondarySkill;
-  if (filters.domain) query['profile.projects.tasks.assignedTo.skills.experience.domains'] = filters.domain;
+  if (filters.state) query['profile.contact.address.location.state'] = { $regex: filters.state, $options: 'i' };
+  if (filters.city) query['profile.contact.address.city'] = { $regex: filters.city, $options: 'i' };
+  if (filters.primarySkill) query['profile.projects.tasks.assignedTo.skills.primary'] = { $regex: filters.primarySkill, $options: 'i' };
+  if (filters.secondarySkill) query['profile.projects.tasks.assignedTo.skills.secondary'] = { $regex: filters.secondarySkill, $options: 'i' };
+  if (filters.domain) query['profile.projects.tasks.assignedTo.skills.experience.domains'] = { $regex: filters.domain, $options: 'i' };
   if (filters.experience) query['profile.projects.tasks.assignedTo.skills.experience.years'] = Number(filters.experience);
   if (filters.verified !== undefined) query['profile.projects.tasks.assignedTo.skills.experience.certifications.meta.verified'] = filters.verified === 'true' || filters.verified === true;
-  if (filters.certification) query['profile.projects.tasks.assignedTo.skills.experience.certifications.current'] = filters.certification;
-  if (filters.timezone) query['profile.contact.address.location.geo.timezone.name'] = filters.timezone;
+  if (filters.certification) query['profile.projects.tasks.assignedTo.skills.experience.certifications.current'] = { $regex: filters.certification, $options: 'i' };
+  if (filters.timezone) query['profile.contact.address.location.geo.timezone.name'] = { $regex: filters.timezone, $options: 'i' };
   if (filters.project) query['profile.projects.projectId'] = filters.project;
   if (filters.task) query['profile.projects.tasks.taskId'] = filters.task;
   if (filters.technology) query['profile.projects.tasks.assignedTo.skills.secondary'] = filters.technology;
