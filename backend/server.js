@@ -15,6 +15,7 @@ const jwtRoutes = require('./routes/jwtRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const protectedRoutes = require('./routes/protectedRoutes');
 const middlewareRoutes = require('./routes/middlewareRoutes');
+const metaRoutes = require('./routes/metaRoutes');
 
 // Import middlewares
 const logger = require('./middlewares/logger');
@@ -23,10 +24,15 @@ const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
-// Global middlewares
-app.use(cors());
+// 1. cors()
+app.use(cors({ preflightContinue: true }));
+// 2. express.json()
 app.use(express.json());
+// 3. express.urlencoded()
+app.use(express.urlencoded({ extended: true }));
+// 4. logger
 app.use(logger);
+// 4. requestTime
 app.use(requestTime);
 
 // Health check route
@@ -34,7 +40,8 @@ app.get('/', (req, res) => {
   res.json({ success: true, message: 'API is running' });
 });
 
-// Mount routes
+// 5. Mount routes
+app.use('/', metaRoutes);
 app.use('/', employeeRoutes);
 app.use('/', searchRoutes);
 app.use('/employees/filter', filterRoutes);
@@ -46,7 +53,12 @@ app.use('/admin', adminRoutes);
 app.use('/protected', protectedRoutes);
 app.use('/middleware', middlewareRoutes);
 
-// Error handler (must be last)
+// 6. 404 handler
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
+});
+
+// 7. Error handler (must be absolutely last)
 app.use(errorHandler);
 
 // Connect to DB and start server
