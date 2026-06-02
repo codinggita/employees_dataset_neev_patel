@@ -310,6 +310,10 @@ const getEmployeeStats = async (id) => {
   };
 };
 
+const filterEmployees = (matchQuery, pagination) => {
+  return paginate(matchQuery, pagination);
+};
+
 module.exports = {
   getAllEmployees,
   getEmployeeById,
@@ -347,4 +351,6 @@ module.exports = {
   searchEmployees,
   getEmployeePerformance,
   getEmployeeStats,
+  filterEmployees,
 };
+
