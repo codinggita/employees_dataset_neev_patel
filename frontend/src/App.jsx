@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import store from './store';
 import { getTheme } from './theme';
 import AppRoutes from './routes/AppRoutes';
+import AuthInitializer from './components/auth/AuthInitializer';
 
 function AppContent() {
   const themeMode = useSelector((state) => state.ui.theme);
@@ -14,7 +15,9 @@ function AppContent() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
-        <AppRoutes />
+        <AuthInitializer>
+          <AppRoutes />
+        </AuthInitializer>
       </BrowserRouter>
     </ThemeProvider>
   );

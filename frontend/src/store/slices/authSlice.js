@@ -36,6 +36,22 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+export const getProfile = createAsyncThunk(
+  'auth/getProfile',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await authService.getProfile();
+      return response; // { success: true, data: { user } }
+    } catch (err) {
+      // 401 means token is invalid/expired — treat as unauthenticated
+      if (err.statusCode === 401) {
+        localStorage.removeItem(TOKEN_KEY);
+      }
+      return rejectWithValue(err.message || 'Failed to fetch profile');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -101,6 +117,25 @@ const authSlice = createSlice({
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      // Get Profile (auto-login on app load)
+      .addCase(getProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        const { user } = action.payload.data;
+        state.user = user;
+        state.isAuthenticated = true;
+      })
+      .addCase(getProfile.rejected, (state) => {
+        // Token invalid or expired — clear auth state
+        state.loading = false;
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
       });
   },
 });
