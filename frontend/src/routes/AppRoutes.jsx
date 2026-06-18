@@ -1,8 +1,9 @@
-import React, { lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { useRoutes, Navigate } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ProtectedRoute from './ProtectedRoute';
+import AdminRoute from './AdminRoute';
 
 // Lazy load pages
 const DashboardHome = lazy(() => import('../pages/DashboardHome'));
@@ -17,7 +18,7 @@ const LoginPage = lazy(() => import('../pages/LoginPage'));
 const RegisterPage = lazy(() => import('../pages/RegisterPage'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 
-export const routes = [
+const routes = [
   // Public routes — no auth required
   {
     path: '/login',
@@ -45,7 +46,12 @@ export const routes = [
           { path: 'stats', element: <StatsDashboard /> },
           { path: 'search', element: <SearchPage /> },
           { path: 'profile', element: <ProfilePage /> },
-          { path: 'settings', element: <SettingsPage /> },
+          {
+            element: <AdminRoute />,
+            children: [
+              { path: 'settings', element: <SettingsPage /> },
+            ],
+          },
         ],
       },
     ],

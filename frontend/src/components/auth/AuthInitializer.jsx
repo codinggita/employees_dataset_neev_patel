@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { getProfile } from '../../store/slices/authSlice';
 import { TOKEN_KEY } from '../../utils/constants';
 import { Box, CircularProgress } from '@mui/material';
@@ -11,8 +11,10 @@ import { Box, CircularProgress } from '@mui/material';
  */
 export default function AuthInitializer({ children }) {
   const dispatch = useDispatch();
-  const [initialized, setInitialized] = useState(false);
-  const token = useSelector((state) => state.auth.token);
+  const [initialized, setInitialized] = useState(() => {
+    const storedToken = localStorage.getItem(TOKEN_KEY);
+    return !storedToken;
+  });
 
   useEffect(() => {
     const storedToken = localStorage.getItem(TOKEN_KEY);
@@ -23,9 +25,6 @@ export default function AuthInitializer({ children }) {
         .finally(() => {
           setInitialized(true);
         });
-    } else {
-      // No token — no session to restore
-      setInitialized(true);
     }
   }, [dispatch]);
 
@@ -48,3 +47,4 @@ export default function AuthInitializer({ children }) {
 
   return children;
 }
+

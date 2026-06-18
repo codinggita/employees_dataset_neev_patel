@@ -70,7 +70,8 @@ export default function Navbar() {
         backgroundColor: 'background.paper',
         color: 'text.primary',
         boxShadow: 'none',
-        borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+        borderBottom: '1px solid',
+        borderColor: 'divider',
       }}
     >
       <Toolbar sx={{ justifyContent: 'space-between', px: 3 }}>

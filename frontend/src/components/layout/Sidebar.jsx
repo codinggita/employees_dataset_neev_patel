@@ -67,7 +67,8 @@ export default function Sidebar() {
               duration: theme.transitions.duration.enteringScreen,
             }),
           overflowX: 'hidden',
-          borderRight: '1px solid rgba(0, 0, 0, 0.08)',
+          borderRight: '1px solid',
+          borderColor: 'divider',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
@@ -113,10 +114,10 @@ export default function Sidebar() {
                     justifyContent: sidebarOpen ? 'initial' : 'center',
                     px: 2.5,
                     borderRadius: '8px',
-                    backgroundColor: isActive ? 'primary.light' : 'transparent',
+                    backgroundColor: isActive ? 'primary.main' : 'transparent',
                     color: isActive ? 'primary.contrastText' : 'text.primary',
                     '&:hover': {
-                      backgroundColor: isActive ? 'primary.main' : 'action.hover',
+                      backgroundColor: isActive ? 'primary.dark' : 'action.hover',
                       color: isActive ? 'primary.contrastText' : 'text.primary',
                     },
                   }}
