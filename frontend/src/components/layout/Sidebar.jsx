@@ -91,7 +91,7 @@ export default function Sidebar() {
           </Avatar>
           {sidebarOpen && (
             <Typography variant="h6" fontWeight={800} color="primary.main">
-              EmpSphere
+              EmpTrack
             </Typography>
           )}
         </Box>

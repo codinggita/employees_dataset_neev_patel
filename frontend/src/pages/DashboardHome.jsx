@@ -6,7 +6,7 @@ export default function DashboardHome() {
   return (
     <Card title="Dashboard">
       <Typography variant="body1" color="text.secondary">
-        Welcome to EmpSphere — your employee management dashboard. This page will be built out in later phases.
+        Welcome to EmpTrack — your employee management dashboard. This page will be built out in later phases.
       </Typography>
     </Card>
   );
