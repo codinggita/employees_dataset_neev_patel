@@ -1,7 +1,7 @@
 {
-  "name": "employee-management-backend",
+  "name": "emptrack-backend",
   "version": "1.0.0",
-  "description": "A production-ready RESTful backend for Employee Management System",
+  "description": "A production-ready RESTful backend for EmpTrack",
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",

@@ -70,7 +70,7 @@ export default function LoginPage() {
           <BubbleChartIcon fontSize="medium" />
         </Box>
         <Typography variant="h4" fontWeight={800} color="primary.main">
-          EmpSphere
+          EmpTrack
         </Typography>
       </Box>
 
