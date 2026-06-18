@@ -1,29 +1,53 @@
+// ─────────────────────────────────────────────────────────────
+// Filter Routes — Pre-built filter endpoints for common queries
+//
+// DIFFERENCE FROM EMPLOYEE ROUTES:
+// - Employee routes use URL parameters: /employees/domain/Cloud
+// - Filter routes use hardcoded MongoDB queries: /employees/filter/cloud
+//
+// These routes are mounted at '/employees/filter' in server.js:
+//   app.use('/employees/filter', filterRoutes);
+// So '/high-experience' here becomes '/employees/filter/high-experience'
+//
+// MONGODB QUERY OPERATORS USED:
+//   $gte  → Greater than or equal to (experience >= 8)
+//   $lte  → Less than or equal to (experience <= 2)
+//   $all  → Array must contain ALL specified values (React AND Node.js)
+//   No operator → Exact match (domains includes "Cloud")
+//
+// All filter routes are public GET endpoints with optional pagination.
+// ─────────────────────────────────────────────────────────────
+
 const express = require('express');
 const router = express.Router();
 const asyncHandler = require('../middlewares/asyncHandler');
 const employeeService = require('../services/employeeService');
 
-// GET /employees/filter/high-experience — experience.years >= 8
+// ─── Experience filters ──────────────────────────────────────
+
+// GET /employees/filter/high-experience — Employees with 8+ years
 router.get('/high-experience', asyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const result = await employeeService.filterEmployees(
-    { 'profile.projects.tasks.assignedTo.skills.experience.years': { $gte: 8 } },
+    { 'profile.projects.tasks.assignedTo.skills.experience.years': { $gte: 8 } }, // $gte = >= 8
     { page, limit }
   );
   res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 }));
 
-// GET /employees/filter/low-experience — experience.years <= 2
+// GET /employees/filter/low-experience — Employees with 2 or fewer years
 router.get('/low-experience', asyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const result = await employeeService.filterEmployees(
-    { 'profile.projects.tasks.assignedTo.skills.experience.years': { $lte: 2 } },
+    { 'profile.projects.tasks.assignedTo.skills.experience.years': { $lte: 2 } }, // $lte = <= 2
     { page, limit }
   );
   res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 }));
 
-// GET /employees/filter/verified — certifications.meta.verified = true
+// ─── Certification filter ────────────────────────────────────
+
+// GET /employees/filter/verified — Only verified certifications
 router.get('/verified', asyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const result = await employeeService.filterEmployees(
@@ -33,7 +57,12 @@ router.get('/verified', asyncHandler(async (req, res) => {
   res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 }));
 
-// GET /employees/filter/cloud — domains includes "Cloud"
+// ─── Domain filters ──────────────────────────────────────────
+// When querying an array field with a simple value, MongoDB checks
+// if the array CONTAINS that value. So { domains: 'Cloud' } matches
+// any document where the domains array includes "Cloud".
+
+// GET /employees/filter/cloud — Employees in the Cloud domain
 router.get('/cloud', asyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const result = await employeeService.filterEmployees(
@@ -43,7 +72,7 @@ router.get('/cloud', asyncHandler(async (req, res) => {
   res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 }));
 
-// GET /employees/filter/finance — domains includes "Finance"
+// GET /employees/filter/finance
 router.get('/finance', asyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const result = await employeeService.filterEmployees(
@@ -53,7 +82,7 @@ router.get('/finance', asyncHandler(async (req, res) => {
   res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 }));
 
-// GET /employees/filter/healthcare — domains includes "Healthcare"
+// GET /employees/filter/healthcare
 router.get('/healthcare', asyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const result = await employeeService.filterEmployees(
@@ -63,7 +92,7 @@ router.get('/healthcare', asyncHandler(async (req, res) => {
   res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 }));
 
-// GET /employees/filter/devops — domains includes "DevOps"
+// GET /employees/filter/devops
 router.get('/devops', asyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const result = await employeeService.filterEmployees(
@@ -73,7 +102,7 @@ router.get('/devops', asyncHandler(async (req, res) => {
   res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 }));
 
-// GET /employees/filter/ai — domains includes "AI"
+// GET /employees/filter/ai
 router.get('/ai', asyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const result = await employeeService.filterEmployees(
@@ -83,7 +112,10 @@ router.get('/ai', asyncHandler(async (req, res) => {
   res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 }));
 
-// GET /employees/filter/fullstack — secondary skills includes "React" AND "Node.js"
+// ─── Skill / Technology filters ──────────────────────────────
+
+// GET /employees/filter/fullstack — Must have BOTH React AND Node.js
+// $all operator: the array must contain ALL specified values
 router.get('/fullstack', asyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const result = await employeeService.filterEmployees(
@@ -93,7 +125,7 @@ router.get('/fullstack', asyncHandler(async (req, res) => {
   res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 }));
 
-// GET /employees/filter/kubernetes — secondary skills includes "Kubernetes"
+// GET /employees/filter/kubernetes — Secondary skills includes Kubernetes
 router.get('/kubernetes', asyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const result = await employeeService.filterEmployees(
@@ -103,7 +135,7 @@ router.get('/kubernetes', asyncHandler(async (req, res) => {
   res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 }));
 
-// GET /employees/filter/react — secondary skills includes "React"
+// GET /employees/filter/react
 router.get('/react', asyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const result = await employeeService.filterEmployees(
@@ -113,7 +145,7 @@ router.get('/react', asyncHandler(async (req, res) => {
   res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 }));
 
-// GET /employees/filter/nodejs — secondary skills includes "Node.js"
+// GET /employees/filter/nodejs
 router.get('/nodejs', asyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const result = await employeeService.filterEmployees(
@@ -123,7 +155,9 @@ router.get('/nodejs', asyncHandler(async (req, res) => {
   res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 }));
 
-// GET /employees/filter/java — primary skill = "Java"
+// ─── Primary skill filters ──────────────────────────────────
+
+// GET /employees/filter/java — Primary skill is Java
 router.get('/java', asyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const result = await employeeService.filterEmployees(
@@ -133,7 +167,7 @@ router.get('/java', asyncHandler(async (req, res) => {
   res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 }));
 
-// GET /employees/filter/python — primary skill = "Python"
+// GET /employees/filter/python — Primary skill is Python
 router.get('/python', asyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const result = await employeeService.filterEmployees(
@@ -143,7 +177,9 @@ router.get('/python', asyncHandler(async (req, res) => {
   res.json({ success: true, count: result.data.length, total: result.total, page: result.page, totalPages: result.totalPages, data: result.data });
 }));
 
-// GET /employees/filter/recent-certifications — sort by lastUpdated desc, top 20
+// ─── Certification sort ──────────────────────────────────────
+
+// GET /employees/filter/recent-certifications — Sorted by most recently updated
 router.get('/recent-certifications', asyncHandler(async (req, res) => {
   const { page, limit } = req.query;
   const Employee = require('../models/Employee');

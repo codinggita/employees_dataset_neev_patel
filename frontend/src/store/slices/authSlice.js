@@ -1,6 +1,8 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import * as authService from '../../services/authService';
+import { TOKEN_KEY } from '../../utils/constants';
 
-const tokenVal = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null;
+const tokenVal = typeof localStorage !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null;
 
 const initialState = {
   user: null,
@@ -9,6 +11,46 @@ const initialState = {
   loading: false,
   error: null,
 };
+
+export const loginUser = createAsyncThunk(
+  'auth/loginUser',
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await authService.login(credentials);
+      return response; // { success: true, message: "...", data: { user, token } }
+    } catch (err) {
+      return rejectWithValue(err.message || 'Failed to login');
+    }
+  }
+);
+
+export const registerUser = createAsyncThunk(
+  'auth/registerUser',
+  async (userData, { rejectWithValue }) => {
+    try {
+      const response = await authService.register(userData);
+      return response; // { success: true, message: "...", data: { user, token } }
+    } catch (err) {
+      return rejectWithValue(err.message || 'Failed to register');
+    }
+  }
+);
+
+export const getProfile = createAsyncThunk(
+  'auth/getProfile',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await authService.getProfile();
+      return response; // { success: true, data: { user } }
+    } catch (err) {
+      // 401 means token is invalid/expired — treat as unauthenticated
+      if (err.statusCode === 401) {
+        localStorage.removeItem(TOKEN_KEY);
+      }
+      return rejectWithValue(err.message || 'Failed to fetch profile');
+    }
+  }
+);
 
 const authSlice = createSlice({
   name: 'auth',
@@ -20,16 +62,16 @@ const authSlice = createSlice({
       state.token = token;
       state.isAuthenticated = !!token;
       if (token) {
-        localStorage.setItem('token', token);
+        localStorage.setItem(TOKEN_KEY, token);
       } else {
-        localStorage.removeItem('token');
+        localStorage.removeItem(TOKEN_KEY);
       }
     },
     logout: (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
-      localStorage.removeItem('token');
+      localStorage.removeItem(TOKEN_KEY);
     },
     setLoading: (state, action) => {
       state.loading = action.payload;
@@ -38,7 +80,66 @@ const authSlice = createSlice({
       state.error = action.payload;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      // Login
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        const { user, token } = action.payload.data;
+        state.user = user;
+        state.token = token;
+        state.isAuthenticated = true;
+        localStorage.setItem(TOKEN_KEY, token);
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Register
+      .addCase(registerUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        const { user, token } = action.payload.data;
+        state.user = user;
+        state.token = token;
+        state.isAuthenticated = true;
+        localStorage.setItem(TOKEN_KEY, token);
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Get Profile (auto-login on app load)
+      .addCase(getProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        const { user } = action.payload.data;
+        state.user = user;
+        state.isAuthenticated = true;
+      })
+      .addCase(getProfile.rejected, (state) => {
+        // Token invalid or expired — clear auth state
+        state.loading = false;
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
+      });
+  },
 });
 
 export const { setCredentials, logout, setLoading, setError } = authSlice.actions;
 export default authSlice.reducer;
+
