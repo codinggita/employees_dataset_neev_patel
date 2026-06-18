@@ -5,6 +5,7 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import { useSelector, useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toggleTheme } from '../../store/slices/uiSlice';
+import { logout } from '../../store/slices/authSlice';
 
 const sidebarWidth = 240;
 const collapsedWidth = 72;
@@ -32,7 +33,8 @@ export default function Navbar() {
 
   const handleLogoutClick = () => {
     handleMenuClose();
-    console.log('Logout clicked - to be wired in Auth connection commit');
+    dispatch(logout());
+    navigate('/login');
   };
 
   const userName = user?.name || 'Guest';

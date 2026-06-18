@@ -1,20 +1,44 @@
-import React from 'react';
-import { Box, Typography, Link as MuiLink } from '@mui/material';
+import React, { useEffect } from 'react';
+import { Box, Typography, Link as MuiLink, Alert } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form } from 'formik';
+import { useDispatch, useSelector } from 'react-redux';
 import Card from '../components/common/Card';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
 import loginSchema from '../features/auth/loginSchema';
 import BubbleChartIcon from '@mui/icons-material/BubbleChart';
+import { loginUser, setError } from '../store/slices/authSlice';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
+
+  // Clear errors when navigating away or loading the page
+  useEffect(() => {
+    dispatch(setError(null));
+  }, [dispatch]);
+
+  // If already authenticated, redirect to dashboard
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleFormSubmit = (values, { setSubmitting }) => {
-    console.log('Login form submitted:', values);
-    // Connection to Redux loginUser thunk will be integrated in Commit 4.
-    setSubmitting(false);
+    dispatch(loginUser(values))
+      .unwrap()
+      .then(() => {
+        navigate('/dashboard');
+      })
+      .catch((err) => {
+        console.error('Login failed:', err);
+      })
+      .finally(() => {
+        setSubmitting(false);
+      });
   };
 
   return (
@@ -58,12 +82,18 @@ export default function LoginPage() {
           boxShadow: '0px 10px 30px rgba(0, 0, 0, 0.08)',
         }}
       >
+        {error && (
+          <Alert severity="error" sx={{ mb: 2.5, borderRadius: '12px' }}>
+            {error}
+          </Alert>
+        )}
+
         <Formik
           initialValues={{ email: '', password: '' }}
           validationSchema={loginSchema}
           onSubmit={handleFormSubmit}
         >
-          {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+          {({ values, errors, touched, handleChange, handleBlur }) => (
             <Form noValidate>
               <Input
                 label="Email Address"
@@ -90,7 +120,7 @@ export default function LoginPage() {
                 variant="contained"
                 color="primary"
                 fullWidth
-                loading={isSubmitting}
+                loading={loading}
                 sx={{ mt: 1 }}
               >
                 Sign In
@@ -111,3 +141,4 @@ export default function LoginPage() {
     </Box>
   );
 }
+
