@@ -1,30 +1,31 @@
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { Typography } from '@mui/material';
-import { lightTheme } from './theme';
-import { Provider } from 'react-redux';
+import { Provider, useSelector } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
 import store from './store';
-import DashboardLayout from './components/layout/DashboardLayout';
+import { getTheme } from './theme';
+import AppRoutes from './routes/AppRoutes';
 
-function App() {
+function AppContent() {
+  const themeMode = useSelector((state) => state.ui.theme);
+  const theme = getTheme(themeMode);
+
   return (
-    <ThemeProvider theme={lightTheme}>
-      <Provider store={store}>
-        <CssBaseline />
-        <DashboardLayout>
-          <Typography variant="h5" fontWeight={700}>
-            Dashboard Layout Shell Loaded Successfully!
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-            Use the chevron toggle button in the bottom left corner of the sidebar drawer panel to verify responsive collapsing behavior.
-          </Typography>
-        </DashboardLayout>
-      </Provider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
     </ThemeProvider>
   );
 }
 
+function App() {
+  return (
+    <Provider store={store}>
+      <AppContent />
+    </Provider>
+  );
+}
 
 export default App;
-
-

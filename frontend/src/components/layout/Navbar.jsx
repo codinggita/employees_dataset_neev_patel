@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Box, Avatar, Menu, MenuItem, Tooltip, Divider } from '@mui/material';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { toggleTheme } from '../../store/slices/uiSlice';
 
 const sidebarWidth = 240;
 const collapsedWidth = 72;
@@ -11,6 +13,9 @@ const collapsedWidth = 72;
  * Navbar component fixed to the top header, adjusting for Collapsible Sidebar.
  */
 export default function Navbar() {
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
   const sidebarOpen = useSelector((state) => state.ui.sidebarOpen);
   const themeMode = useSelector((state) => state.ui.theme);
   const user = useSelector((state) => state.auth.user);
@@ -33,7 +38,7 @@ export default function Navbar() {
   const userName = user?.name || 'Guest';
 
   // Determine page title based on path
-  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+  const currentPath = location.pathname;
   const getPageTitle = () => {
     if (currentPath.startsWith('/dashboard')) return 'Dashboard';
     if (currentPath.startsWith('/employees')) return 'Employees Directory';
@@ -74,8 +79,8 @@ export default function Navbar() {
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          {/* Theme Mode Toggle (Visual placeholder for now) */}
-          <IconButton color="inherit" size="medium">
+          {/* Theme Mode Toggle */}
+          <IconButton color="inherit" size="medium" onClick={() => dispatch(toggleTheme())}>
             {themeMode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
           </IconButton>
 
@@ -120,8 +125,8 @@ export default function Navbar() {
               transformOrigin={{ horizontal: 'right', vertical: 'top' }}
               anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-              <MenuItem onClick={handleMenuClose}>My Profile</MenuItem>
-              <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
+              <MenuItem onClick={() => { handleMenuClose(); navigate('/profile'); }}>My Profile</MenuItem>
+              <MenuItem onClick={() => { handleMenuClose(); navigate('/settings'); }}>Settings</MenuItem>
               <Divider />
               <MenuItem onClick={handleLogoutClick} sx={{ color: 'error.main', fontWeight: 600 }}>
                 Logout

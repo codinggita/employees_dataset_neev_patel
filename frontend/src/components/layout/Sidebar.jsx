@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
   Drawer,
   List,
@@ -47,7 +48,8 @@ export default function Sidebar() {
   ];
 
   // Visual active highlight based on path
-  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   return (
     <Drawer
@@ -97,10 +99,15 @@ export default function Sidebar() {
         {/* Menu Navigation Items */}
         <List sx={{ px: 1, py: 2 }}>
           {menuItems.map((item) => {
-            const isActive = currentPath === item.path;
+            const isActive =
+              item.path === '/dashboard'
+                ? currentPath === '/dashboard' || currentPath === '/'
+                : currentPath.startsWith(item.path);
             return (
               <ListItem key={item.text} disablePadding sx={{ display: 'block', mb: 0.5 }}>
                 <ListItemButton
+                  component={NavLink}
+                  to={item.path}
                   sx={{
                     minHeight: 48,
                     justifyContent: sidebarOpen ? 'initial' : 'center',
